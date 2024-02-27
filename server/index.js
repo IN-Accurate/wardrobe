@@ -9,6 +9,13 @@ const port = process.env.PORT || 5000;
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(cors());
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src data: https://www.google-analytics.com; font-src 'self' https://wardrobe-zj0u.onrender.com;"
+  );
+  next();
+});
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
