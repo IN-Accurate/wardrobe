@@ -55,7 +55,7 @@ function App() {
         {wardrobe.map((item) => (
           <img
             key={item._id}
-            src={`https://wardrobe-zj0u.onrender.com/uploads/image-1709055955263.jpg`}
+            src={item.image}
             alt='Wardrobe Item'
             style={{ width: 'auto', height: '300px', margin: '5px' }}
           />
