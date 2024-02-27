@@ -7,10 +7,8 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Define the absolute path to the uploads directory
 const uploadsDirectory = path.join(__dirname, 'uploads');
 
-// Set up middleware
 app.use('/uploads', express.static(uploadsDirectory));
 app.use(cors());
 app.use((req, res, next) => {
@@ -21,7 +19,6 @@ app.use((req, res, next) => {
   next();
 });
 
-// Multer storage configuration
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, uploadsDirectory);
@@ -34,10 +31,8 @@ const storage = multer.diskStorage({
   },
 });
 
-// Initialize multer with the storage configuration
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage }).single('image'); // Define multer middleware as single file upload
 
-// Define routes
 app.get('/wardrobe', (req, res) => {
   fs.readdir(uploadsDirectory, (err, files) => {
     if (err) {
@@ -71,7 +66,6 @@ app.post('/upload', (req, res) => {
   });
 });
 
-// Start the server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
