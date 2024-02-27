@@ -32,7 +32,7 @@ app.get('/wardrobe', (req, res) => {
     } else {
       const wardrobe = files.map((file) => ({
         _id: file,
-        image: `http://localhost:5000/uploads/${file}`,
+        image: `https://wardrobe-zj0u.onrender.com/uploads/${file}`,
       }));
       res.status(200).json(wardrobe);
     }

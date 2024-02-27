@@ -11,7 +11,7 @@ function App() {
 
   const fetchWardrobe = () => {
     axios
-      .get('http://localhost:5000/wardrobe')
+      .get('https://wardrobe-zj0u.onrender.com/wardrobe')
       .then((response) => {
         setWardrobe(response.data);
         console.log(response.data);
@@ -30,7 +30,7 @@ function App() {
     formData.append('image', image);
 
     axios
-      .post('http://localhost:5000/upload', formData, {
+      .post('https://wardrobe-zj0u.onrender.com/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -55,7 +55,7 @@ function App() {
         {wardrobe.map((item) => (
           <img
             key={item._id}
-            src={`http://localhost:5000/uploads/image-1709055955263.jpg`}
+            src={`https://wardrobe-zj0u.onrender.com/uploads/image-1709055955263.jpg`}
             alt='Wardrobe Item'
             style={{ width: 'auto', height: '300px', margin: '5px' }}
           />
