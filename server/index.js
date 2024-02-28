@@ -47,7 +47,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }).single('image');
 
 mongoose
-  .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/')
+  .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/wardrobe')
   .then(() => console.log('Connected to MongoDB Atlas'))
   .catch((err) => console.error('Error connecting to MongoDB Atlas:', err));
 
