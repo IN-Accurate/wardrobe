@@ -39,7 +39,12 @@ function App() {
     axios
       .get(`https://wardrobe-zj0u.onrender.com/wardrobe/${username}`)
       .then((response) => {
-        setWardrobe(response.data);
+        setWardrobe(
+          response.data.map((item) => ({
+            filename: item.filename,
+            category: item.category,
+          }))
+        );
       })
       .catch((error) => {
         console.error(error);

@@ -11,7 +11,7 @@
 .category-row {
   display: flex;
   overflow: hidden;
-  animation: carousel-animation 10s linear infinite;
+  animation: carousel-animation 10s linear infinite alternate; /* Added 'alternate' to make it alternate direction */
 }
 
 @keyframes carousel-animation {
