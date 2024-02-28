@@ -1,29 +1,17 @@
-/* In App.css */
-
-/* Updated category-row class to target only wardrobe containers with carousel animation */
-.category-row {
-  overflow: hidden;
+.carousel {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-/* Updated wardrobe-item class to apply carousel animation */
-.wardrobe-item {
-  animation: carousel-animation 10s linear infinite alternate;
+.carousel-image {
+  max-width: 100%;
+  height: auto;
+  display: none; /* Hide all images by default */
 }
 
-/* Paused animation style for wardrobe items */
-.wardrobe-item.paused {
-  animation-play-state: paused;
-}
-
-/* Ensure that carousel animation doesn't affect other elements */
-@keyframes carousel-animation {
-  0% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+.carousel-image.active {
+  display: block; /* Display the active image */
 }
