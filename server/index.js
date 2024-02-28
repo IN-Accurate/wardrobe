@@ -104,7 +104,10 @@ app.post('/upload/:username', (req, res) => {
         try {
           const user = await User.findOne({ username });
           if (user) {
-            user.wardrobe.push({ filename: req.file.filename, category });
+            user.wardrobe.push({
+              filename: req.file.filename,
+              category: category,
+            });
             await user.save();
             res.status(200).json({
               message: 'File uploaded successfully',
