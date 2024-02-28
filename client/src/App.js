@@ -47,30 +47,32 @@ function App() {
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value); // Ensure selectedCategory is set correctly
   };
-
   const handleUpload = () => {
     if (!image || !selectedCategory) {
       console.error('No file selected or category not selected');
       return;
     }
 
-    const formData = new FormData();
-    formData.append('image', image);
-    formData.append('category', selectedCategory); // Add selected category to form data
-    console.log(formData.get('category'));
-    axios
-      .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Ensure Content-Type header is set
-        },
-      })
-      .then((response) => {
-        fetchWardrobe(); // Refetch wardrobe to update with the new item
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+      const imageData = event.target.result;
+
+      axios
+        .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, {
+          image: imageData,
+          category: selectedCategory,
+        })
+        .then((response) => {
+          fetchWardrobe(); // Refetch wardrobe to update with the new item
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    };
+
+    reader.readAsDataURL(image);
   };
 
   const handleLogin = () => {

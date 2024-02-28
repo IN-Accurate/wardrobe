@@ -24,20 +24,6 @@ app.use('/uploads', express.static(uploadsDirectory));
 app.use(cors());
 app.use(express.json());
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadsDirectory);
-  },
-  filename: function (req, file, cb) {
-    cb(
-      null,
-      file.fieldname + '-' + Date.now() + path.extname(file.originalname)
-    );
-  },
-});
-
-const upload = multer({ storage: storage }).single('image');
-
 mongoose
   .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/wardrobe')
   .then(() => console.log('Connected to MongoDB Atlas'))
@@ -91,40 +77,53 @@ app.get('/wardrobe/:username', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  console.log('Request Body:', req.body); // Log the entire request body to inspect the received data
-  const { category } = req.body;
-  upload(req, res, async (err) => {
-    if (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    } else {
-      if (req.file === undefined) {
-        res.status(400).json({ error: 'No file selected' });
-      } else {
-        try {
-          const { originalname } = req.file;
+  const { image, category } = req.body; // Ensure that image and category are correctly parsed from the request body
+  console.log(req.body);
 
-          const user = await User.findOne({ username });
-          if (user) {
-            user.wardrobe.push({ filename: originalname, category }); // Store category along with filename
-            await user.save();
-            res.status(200).json({
-              message: 'File uploaded successfully',
-              filename: originalname,
-            });
-          } else {
-            res.status(404).send('User not found');
-          }
-        } catch (error) {
-          console.error('Error uploading file:', error);
-          res.status(500).send('Internal Server Error');
+  // Convert base64 image data to buffer
+  const imageData = Buffer.from(image.split(',')[1], 'base64');
+
+  // Generate unique filename
+  const filename = `image-${Date.now()}.png`;
+
+  // Write buffer to file
+  const writeFileAsync = async () => {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(path.join(uploadsDirectory, filename), imageData, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
         }
+      });
+    });
+  };
+
+  writeFileAsync()
+    .then(async () => {
+      try {
+        const user = await User.findOne({ username });
+        if (user) {
+          user.wardrobe.push({ filename, category }); // Store category along with filename
+          await user.save();
+          res.status(200).json({
+            message: 'File uploaded successfully',
+            filename,
+          });
+        } else {
+          res.status(404).send('User not found');
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        res.status(500).send('Internal Server Error');
       }
-    }
-  });
+    })
+    .catch((error) => {
+      console.error('Error writing file:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
 
 app.listen(port, () => {
