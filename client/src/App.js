@@ -1,25 +1,26 @@
+// App.js (frontend)
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 function App() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [wardrobe, setWardrobe] = useState([]);
-  const [image, setImage] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [wardrobe, setWardrobe] = useState([]);
+  const [image, setImage] = useState(null);
 
   useEffect(() => {
-    if (authenticated) {
+    if (isLoggedIn) {
       fetchWardrobe();
     }
-  }, [authenticated]);
+  }, [isLoggedIn]);
 
   const fetchWardrobe = () => {
     axios
-      .get(`https://wardrobe-zj0u.onrender.com/wardrobe?username=${username}`)
+      .get(`https://wardrobe-zj0u.onrender.com/wardrobe/${username}`)
       .then((response) => {
         setWardrobe(response.data);
-        console.log(response.data);
       })
       .catch((error) => {
         console.error(error);
@@ -35,15 +36,11 @@ function App() {
     formData.append('image', image);
 
     axios
-      .post(
-        `https://wardrobe-zj0u.onrender.com/upload?username=${username}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      )
+      .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
       .then((response) => {
         fetchWardrobe(); // Refresh wardrobe after upload
       })
@@ -53,25 +50,19 @@ function App() {
   };
 
   const handleLogin = () => {
-    // Send login credentials to backend for authentication
     axios
       .post('https://wardrobe-zj0u.onrender.com/login', { username, password })
       .then((response) => {
-        if (response.data.success) {
-          setAuthenticated(true);
-        } else {
-          alert('Invalid username or password');
-        }
+        setIsLoggedIn(true);
       })
       .catch((error) => {
         console.error(error);
-        alert('Error logging in');
       });
   };
 
   return (
     <div>
-      {!authenticated ? (
+      {!isLoggedIn ? (
         <div>
           <h1>Login</h1>
           <input
