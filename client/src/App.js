@@ -1,7 +1,6 @@
-// App.js (frontend)
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -10,12 +9,31 @@ function App() {
 
   const [wardrobe, setWardrobe] = useState([]);
   const [image, setImage] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [carouselDirection, setCarouselDirection] = useState('left');
+
+  const categoryOptions = [
+    'tops',
+    'bottoms',
+    'headgear',
+    'footwear',
+    'accessories',
+  ];
 
   useEffect(() => {
     if (isLoggedIn) {
       fetchWardrobe();
     }
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCarouselDirection((prevDirection) =>
+        prevDirection === 'left' ? 'right' : 'left'
+      );
+    }, 5000); // Change direction every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchWardrobe = () => {
     axios
@@ -61,6 +79,14 @@ function App() {
       });
   };
 
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
+  };
+
+  const handleItemClick = (filename) => {
+    // Handle item selection
+  };
+
   return (
     <div>
       {!isLoggedIn ? (
@@ -85,20 +111,44 @@ function App() {
           <h1>Digital Wardrobe</h1>
           <h2>Upload Clothes</h2>
           <input type='file' onChange={handleImageChange} />
+          <select value={selectedCategory} onChange={handleCategoryChange}>
+            <option value=''>Select Category</option>
+            {categoryOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
           <button onClick={handleUpload}>Upload</button>
 
           <h2>My Wardrobe</h2>
-          <div>
-            <div>
-              {wardrobe.map((filename) => (
-                <img
-                  key={filename}
-                  src={`https://wardrobe-zj0u.onrender.com/uploads/${filename}`}
-                  alt='Wardrobe Item'
-                  style={{ width: 'auto', height: '300px', margin: '5px' }}
-                />
-              ))}
-            </div>
+          <p>Click one item from each row to pick it</p>
+          <div className='wardrobe-container'>
+            {categoryOptions.map((category) => (
+              <div
+                key={category}
+                className='category-row'
+                style={{ animationDirection: carouselDirection }}
+              >
+                {wardrobe.map(
+                  (item) =>
+                    item.category === category && (
+                      <img
+                        key={item.filename}
+                        src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
+                        alt='Wardrobe Item'
+                        style={{
+                          width: 'auto',
+                          height: '300px',
+                          margin: '5px',
+                          cursor: 'pointer',
+                        }}
+                        onClick={() => handleItemClick(item.filename)}
+                      />
+                    )
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}

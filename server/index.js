@@ -1,5 +1,3 @@
-// server.js (backend)
-
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
@@ -23,14 +21,6 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static(uploadsDirectory));
 app.use(cors());
 app.use(express.json());
-
-app.use((req, res, next) => {
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src data: https://www.google-analytics.com; font-src 'self' https://wardrobe-zj0u.onrender.com;"
-  );
-  next();
-});
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -56,7 +46,8 @@ const userSchema = new mongoose.Schema({
   password: String,
   wardrobe: [
     {
-      type: String,
+      filename: String,
+      category: String,
     },
   ],
 });
@@ -101,6 +92,7 @@ app.get('/wardrobe/:username', async (req, res) => {
 
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
+  const { category } = req.body;
   upload(req, res, async (err) => {
     if (err) {
       console.error(err);
@@ -112,7 +104,7 @@ app.post('/upload/:username', (req, res) => {
         try {
           const user = await User.findOne({ username });
           if (user) {
-            user.wardrobe.push(req.file.filename);
+            user.wardrobe.push({ filename: req.file.filename, category });
             await user.save();
             res.status(200).json({
               message: 'File uploaded successfully',
