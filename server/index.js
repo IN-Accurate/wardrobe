@@ -6,6 +6,8 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 
 const app = express();
+app.use(express.json());
+
 const port = process.env.PORT || 5000;
 
 const uploadsDirectory = path.join(__dirname, 'uploads');
@@ -92,8 +94,8 @@ app.get('/wardrobe/:username', async (req, res) => {
 
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  const { category } = req.body; // Get category from request body
-
+  const { category } = req.body; // Ensure that category is correctly parsed from the request body
+  console.log(req.body);
   upload(req, res, async (err) => {
     if (err) {
       console.error(err);

@@ -24,19 +24,15 @@ function App() {
       fetchWardrobe();
     }
   }, [isLoggedIn]);
-
   const fetchWardrobe = () => {
     axios
       .get(`https://wardrobe-zj0u.onrender.com/wardrobe/${username}`)
       .then((response) => {
-        // Parse category from filename
-        const wardrobeWithCategories = response.data.map((item) => {
-          const filenameParts = item.filename.split('::::');
-          return {
-            filename: filenameParts[1],
-            category: filenameParts[0],
-          };
-        });
+        // Parse filename and category from the response data
+        const wardrobeWithCategories = response.data.map((item) => ({
+          filename: item.filename,
+          category: item.category,
+        }));
         setWardrobe(wardrobeWithCategories);
         console.log(wardrobeWithCategories);
       })
