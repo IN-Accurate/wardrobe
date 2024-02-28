@@ -87,7 +87,7 @@ function App() {
 
   const handleLogin = () => {
     axios
-      .post('https://wardrobe-zj0u.onrender.com/login', { username, password })
+      .post('https://wardrobe-2.onrender.com/login', { username, password })
       .then((response) => {
         setIsLoggedIn(true);
       })
@@ -138,7 +138,7 @@ function App() {
                   item.category === category ? (
                     <img
                       key={item.filename}
-                      src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
+                      src={`https://wardrobe-2.onrender.com/uploads/${item.filename}`}
                       alt='Wardrobe Item'
                       className='wardrobe-item'
                       style={{
