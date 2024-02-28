@@ -84,34 +84,37 @@ app.get('/wardrobe/:username', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, 'image-' + Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage: storage });
-
-app.post('/upload/:username', upload.single('image'), (req, res) => {
+app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  const { category } = req.body;
+  const { image, category } = req.body; // Ensure that image and category are correctly parsed from the request body
+  console.log(req.body);
 
-  const filename = req.file.filename;
+  // Convert base64 image data to buffer
+  const imageData = Buffer.from(image.split(',')[1], 'base64');
 
-  try {
-    User.findOneAndUpdate(
-      { username },
-      { $push: { wardrobe: { filename, category } } },
-      { new: true },
-      (err, user) => {
+  // Generate unique filename
+  const filename = `image-${Date.now()}.png`;
+
+  // Write buffer to file
+  const writeFileAsync = async () => {
+    return new Promise((resolve, reject) => {
+      fs.writeFile(path.join(uploadsDirectory, filename), imageData, (err) => {
         if (err) {
-          console.error('Error uploading file:', err);
-          res.status(500).send('Internal Server Error');
-        } else if (user) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  };
+
+  writeFileAsync()
+    .then(async () => {
+      try {
+        const user = await User.findOne({ username });
+        if (user) {
+          user.wardrobe.push({ filename, category }); // Store category along with filename
+          await user.save();
           res.status(200).json({
             message: 'File uploaded successfully',
             filename,
@@ -119,13 +122,17 @@ app.post('/upload/:username', upload.single('image'), (req, res) => {
         } else {
           res.status(404).send('User not found');
         }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        res.status(500).send('Internal Server Error');
       }
-    );
-  } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).send('Internal Server Error');
-  }
+    })
+    .catch((error) => {
+      console.error('Error writing file:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    });
 });
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

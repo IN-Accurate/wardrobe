@@ -63,29 +63,31 @@ function App() {
       );
       return;
     }
+    const reader = new FileReader();
 
-    const formData = new FormData();
-    formData.append('image', image);
-    formData.append('category', selectedCategory);
+    reader.onload = function (event) {
+      const imageData = event.target.result;
 
-    axios
-      .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then((response) => {
-        fetchWardrobe(); // Refetch wardrobe to update with the new item
-        console.log(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      axios
+        .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, {
+          image: imageData,
+          category: selectedCategory,
+        })
+        .then((response) => {
+          fetchWardrobe(); // Refetch wardrobe to update with the new item
+          console.log(response.data);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    };
+
+    reader.readAsDataURL(image);
   };
 
   const handleLogin = () => {
     axios
-      .post('https://wardrobe-2.onrender.com/login', { username, password })
+      .post('https://wardrobe-zj0u.onrender.com/login', { username, password })
       .then((response) => {
         setIsLoggedIn(true);
       })
@@ -136,7 +138,7 @@ function App() {
                   item.category === category ? (
                     <img
                       key={item.filename}
-                      src={`https://wardrobe-2.onrender.com/uploads/${item.filename}`}
+                      src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
                       alt='Wardrobe Item'
                       className='wardrobe-item'
                       style={{
