@@ -90,7 +90,7 @@ app.get('/wardrobe/:username', async (req, res) => {
   }
 });
 
-app.post('/upload/:username', (req, res) => {
+app.post('/upload/:username', upload.none(), (req, res) => {
   const { username } = req.params;
   const category = req.body.category;
   console.log(category);
