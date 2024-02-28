@@ -88,11 +88,11 @@ app.get('/wardrobe/:username', async (req, res) => {
   }
 });
 const upload = multer({ storage: storage }).single('image');
-
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  const category = req.body.category; // Correctly access category from req.body
-  console.log(category);
+  const category = req.body.category; // Make sure to retrieve the category from the request body
+  console.log(category); // Check if the category is correctly retrieved
+
   upload(req, res, async (err) => {
     if (err) {
       console.error(err);

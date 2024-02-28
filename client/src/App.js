@@ -50,8 +50,13 @@ function App() {
   const handleImageChange = (event) => {
     setImage(event.target.files[0]);
   };
-
+  // Adjust handleUpload function to include category in the FormData object
   const handleUpload = () => {
+    if (!selectedCategory) {
+      console.error('No category selected');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('image', image);
     formData.append('category', selectedCategory);
