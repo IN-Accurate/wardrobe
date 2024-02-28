@@ -7,6 +7,7 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
   const [wardrobe, setWardrobe] = useState([]);
   const [image, setImage] = useState(null);
 
@@ -88,14 +89,16 @@ function App() {
 
           <h2>My Wardrobe</h2>
           <div>
-            {wardrobe.map((item) => (
-              <img
-                key={item._id}
-                src={item.image}
-                alt='Wardrobe Item'
-                style={{ width: 'auto', height: '300px', margin: '5px' }}
-              />
-            ))}
+            <div>
+              {wardrobe.map((filename) => (
+                <img
+                  key={filename}
+                  src={`https://wardrobe-zj0u.onrender.com/uploads/${filename}`}
+                  alt='Wardrobe Item'
+                  style={{ width: 'auto', height: '300px', margin: '5px' }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
