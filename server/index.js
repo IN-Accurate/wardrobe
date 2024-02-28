@@ -104,6 +104,7 @@ app.post('/upload/:username', (req, res) => {
       } else {
         try {
           const user = await User.findOne({ username });
+          console.log(category);
           if (user) {
             user.wardrobe.push({
               filename: req.file.filename,
@@ -113,6 +114,7 @@ app.post('/upload/:username', (req, res) => {
             res.status(200).json({
               message: 'File uploaded successfully',
               filename: req.file.filename,
+              category: category,
             });
           } else {
             res.status(404).send('User not found');
