@@ -11,6 +11,7 @@ function App() {
   const [image, setImage] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [carouselDirection, setCarouselDirection] = useState('left');
+  const [pausedCategories, setPausedCategories] = useState([]);
 
   const categoryOptions = [
     'tops',
@@ -60,20 +61,15 @@ function App() {
   };
 
   const handleUpload = () => {
-    if (!image || !image.name || !selectedCategory) {
+    if (!image || !selectedCategory) {
       console.error('No file selected or category not selected');
       return;
     }
 
     const formData = new FormData();
-    // Rename the file with category as prefix
-    const renamedFile = new File(
-      [image],
-      `${selectedCategory}::::${image.name}`,
-      { type: image.type }
-    );
-    formData.append('image', renamedFile);
-    console.log(renamedFile);
+    formData.append('image', image);
+    formData.append('category', selectedCategory); // Add selected category to form data
+
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
         headers: {
@@ -106,6 +102,12 @@ function App() {
 
   const handleItemClick = (filename) => {
     // Handle item selection
+    const category = filename.split('::::')[0];
+    setPausedCategories((prevPausedCategories) =>
+      prevPausedCategories.includes(category)
+        ? prevPausedCategories.filter((c) => c !== category)
+        : [...prevPausedCategories, category]
+    );
   };
 
   return (
@@ -143,23 +145,38 @@ function App() {
           <button onClick={handleUpload}>Upload</button>
 
           <h2>My Wardrobe</h2>
-          <p>Click one item from each row to pick it</p>
-          <div className='wardrobe-container'>
-            {wardrobe.map((item) => (
-              <img
-                key={item.filename}
-                src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
-                alt='Wardrobe Item'
-                style={{
-                  width: 'auto',
-                  height: '300px',
-                  margin: '5px',
-                  cursor: 'pointer',
-                }}
-                onClick={() => handleItemClick(item.filename)}
-              />
-            ))}
-          </div>
+          <p>Click an item to pause/resume its carousel</p>
+          {categoryOptions.map((category) => (
+            <div
+              key={category}
+              style={{
+                animationPlayState: pausedCategories.includes(category)
+                  ? 'paused'
+                  : 'running',
+              }}
+            >
+              <h3>{category}</h3>
+              <div className='wardrobe-container'>
+                {wardrobe.map((item) =>
+                  item.category === category ? (
+                    <img
+                      key={item.filename}
+                      src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
+                      alt='Wardrobe Item'
+                      className='wardrobe-item'
+                      style={{
+                        width: 'auto',
+                        height: '300px',
+                        margin: '5px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => handleItemClick(item.filename)}
+                    />
+                  ) : null
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

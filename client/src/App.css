@@ -1,19 +1,21 @@
-.App {
-  text-align: center;
-}
+/* In App.css */
 
-.wardrobe-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
+/* Updated category-row class to target only wardrobe containers with carousel animation */
 .category-row {
-  display: flex;
   overflow: hidden;
-  animation: carousel-animation 10s linear infinite alternate; /* Added 'alternate' to make it alternate direction */
 }
 
+/* Updated wardrobe-item class to apply carousel animation */
+.wardrobe-item {
+  animation: carousel-animation 10s linear infinite alternate;
+}
+
+/* Paused animation style for wardrobe items */
+.wardrobe-item.paused {
+  animation-play-state: paused;
+}
+
+/* Ensure that carousel animation doesn't affect other elements */
 @keyframes carousel-animation {
   0% {
     transform: translateX(0);

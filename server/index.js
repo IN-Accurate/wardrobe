@@ -88,8 +88,11 @@ app.get('/wardrobe/:username', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
+  const { category } = req.body; // Get category from request body
+
   upload(req, res, async (err) => {
     if (err) {
       console.error(err);
@@ -100,17 +103,14 @@ app.post('/upload/:username', (req, res) => {
       } else {
         try {
           const { originalname } = req.file;
-          const filenameParts = originalname.split('::::');
-          const category = filenameParts[0];
-          const filename = filenameParts[1];
 
           const user = await User.findOne({ username });
           if (user) {
-            user.wardrobe.push({ filename: `${category}::::${filename}` });
+            user.wardrobe.push({ filename: originalname, category }); // Store category along with filename
             await user.save();
             res.status(200).json({
               message: 'File uploaded successfully',
-              filename: `${category}::::${filename}`,
+              filename: originalname,
             });
           } else {
             res.status(404).send('User not found');
