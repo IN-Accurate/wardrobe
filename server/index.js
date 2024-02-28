@@ -25,13 +25,10 @@ app.use(cors());
 app.use(express.json()); // Parse JSON bodies
 
 // MongoDB connection
-mongoose.connect(
-  'mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/<your_database_name>?retryWrites=true&w=majority',
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  }
-);
+mongoose.connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
 // Define MongoDB schema and model for users
 const userSchema = new mongoose.Schema({
