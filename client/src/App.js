@@ -63,26 +63,24 @@ function App() {
       );
       return;
     }
-    const reader = new FileReader();
 
-    reader.onload = function (event) {
-      const imageData = event.target.result;
+    const formData = new FormData();
+    formData.append('image', image);
+    formData.append('category', selectedCategory);
 
-      axios
-        .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, {
-          image: imageData,
-          category: selectedCategory,
-        })
-        .then((response) => {
-          fetchWardrobe(); // Refetch wardrobe to update with the new item
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    };
-
-    reader.readAsDataURL(image);
+    axios
+      .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => {
+        fetchWardrobe(); // Refetch wardrobe to update with the new item
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   const handleLogin = () => {
