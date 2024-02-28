@@ -84,6 +84,18 @@ app.get('/wardrobe/:username', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, 'image-' + Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
 app.post('/upload/:username', upload.single('image'), (req, res) => {
   const { username } = req.params;
   const { category } = req.body;
