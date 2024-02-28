@@ -44,6 +44,9 @@ function App() {
   const handleImageChange = (event) => {
     setImage(event.target.files[0]);
   };
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value); // Ensure selectedCategory is set correctly
+  };
 
   const handleUpload = () => {
     if (!image || !selectedCategory) {
@@ -54,11 +57,11 @@ function App() {
     const formData = new FormData();
     formData.append('image', image);
     formData.append('category', selectedCategory); // Add selected category to form data
-
+    console.log(formData.get('category'));
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'multipart/form-data', // Ensure Content-Type header is set
         },
       })
       .then((response) => {
@@ -79,10 +82,6 @@ function App() {
       .catch((error) => {
         console.error(error);
       });
-  };
-
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value);
   };
 
   return (
@@ -109,16 +108,14 @@ function App() {
           <h1>Digital Wardrobe</h1>
           <h2>Upload Clothes</h2>
           <input type='file' onChange={handleImageChange} />
-          <select value={selectedCategory} onChange={handleCategoryChange}>
-            <option value=''>Select Category</option>
-            {categoryOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          Category:
+          <input
+            type='text'
+            placeholder='Enter Category'
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          />
           <button onClick={handleUpload}>Upload</button>
-
           <h2>My Wardrobe</h2>
           <p>Click an item to pause/resume its carousel</p>
           {categoryOptions.map((category) => (

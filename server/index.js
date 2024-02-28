@@ -94,8 +94,8 @@ app.get('/wardrobe/:username', async (req, res) => {
 
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  const { category } = req.body; // Ensure that category is correctly parsed from the request body
-  console.log(req.body);
+  console.log('Request Body:', req.body); // Log the entire request body to inspect the received data
+  const { category } = req.body;
   upload(req, res, async (err) => {
     if (err) {
       console.error(err);
