@@ -12,8 +12,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json({ limit: '100000mb' }));
-app.use(bodyParser.urlencoded({ limit: '100000mb', extended: true }));
+app.use(bodyParser.json({ limit: '100MB' }));
+app.use(bodyParser.urlencoded({ limit: '100MB', extended: true }));
 app.use(
   cors({
     origin: 'http://localhost:3000', // Replace this with your frontend origin
