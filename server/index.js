@@ -87,11 +87,9 @@ app.get('/wardrobe/:username', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-const upload = multer({ storage: storage }).single('image');
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  const category = req.body.category; // Make sure to retrieve the category from the request body
-  console.log(category); // Check if the category is correctly retrieved
+  const { category } = req.body; // Retrieve the category from the request body
 
   upload(req, res, async (err) => {
     if (err) {
@@ -103,17 +101,16 @@ app.post('/upload/:username', (req, res) => {
       } else {
         try {
           const user = await User.findOne({ username });
-          console.log(category);
           if (user) {
             user.wardrobe.push({
               filename: req.file.filename,
-              category: category,
+              category: category, // Use the category retrieved from the request body
             });
             await user.save();
             res.status(200).json({
               message: 'File uploaded successfully',
               filename: req.file.filename,
-              category: category,
+              category: category, // Return the category from the request body
             });
           } else {
             res.status(404).send('User not found');
@@ -126,6 +123,7 @@ app.post('/upload/:username', (req, res) => {
     }
   });
 });
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
