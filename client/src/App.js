@@ -60,7 +60,7 @@ function App() {
     const formData = new FormData();
     formData.append('image', image);
     formData.append('category', selectedCategory); // Include category in FormData
-    console.log(formData.get('category'));
+  
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
         headers: {
@@ -86,8 +86,8 @@ function App() {
         console.error(error);
       });
   };
+
   const handleCategoryChange = (event) => {
-    console.log(event.target.value); // Check if the value is correctly obtained
     setSelectedCategory(event.target.value);
   };
 
@@ -127,7 +127,6 @@ function App() {
               </option>
             ))}
           </select>
-
           <button onClick={handleUpload}>Upload</button>
 
           <h2>My Wardrobe</h2>
