@@ -55,10 +55,10 @@ function App() {
   const handleImageChange = (event) => {
     setImage(event.target.files[0]);
   };
-
   const handleUpload = () => {
     const formData = new FormData();
     formData.append('image', image);
+    formData.append('category', selectedCategory); // Include the category
 
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
