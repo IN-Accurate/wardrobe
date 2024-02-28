@@ -39,8 +39,16 @@ function App() {
     axios
       .get(`https://wardrobe-zj0u.onrender.com/wardrobe/${username}`)
       .then((response) => {
-        setWardrobe(response.data);
-        console.log(response.data);
+        // Extract category from filename locally
+        const wardrobeWithCategories = response.data.map((item) => {
+          const filenameParts = item.filename.split('::::');
+          return {
+            filename: filenameParts[1],
+            category: filenameParts[0],
+          };
+        });
+        setWardrobe(wardrobeWithCategories);
+        console.log(wardrobeWithCategories);
       })
       .catch((error) => {
         console.error(error);
@@ -50,17 +58,22 @@ function App() {
   const handleImageChange = (event) => {
     setImage(event.target.files[0]);
   };
-  // Adjust handleUpload function to include category in the FormData object
+
   const handleUpload = () => {
-    if (!selectedCategory) {
-      console.error('No category selected');
+    if (!image || !image.name || !selectedCategory) {
+      console.error('No file selected or category not selected');
       return;
     }
 
     const formData = new FormData();
-    formData.append('image', image);
-    formData.append('category', selectedCategory); // Include category in FormData
-  
+    // Rename the file with category as prefix
+    const renamedFile = new File(
+      [image],
+      `${selectedCategory}::::${image.name}`,
+      { type: image.type }
+    );
+    formData.append('image', renamedFile);
+
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
         headers: {
@@ -68,7 +81,7 @@ function App() {
         },
       })
       .then((response) => {
-        fetchWardrobe();
+        fetchWardrobe(); // Refetch wardrobe to update with the new item
         console.log(response.data);
       })
       .catch((error) => {

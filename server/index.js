@@ -47,7 +47,6 @@ const userSchema = new mongoose.Schema({
   wardrobe: [
     {
       filename: String,
-      category: String,
     },
   ],
 });
@@ -92,8 +91,6 @@ app.get('/wardrobe/:username', async (req, res) => {
 
 app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-
-  const { category } = req.body;
   upload(req, res, async (err) => {
     if (err) {
       console.error(err);
@@ -105,10 +102,7 @@ app.post('/upload/:username', (req, res) => {
         try {
           const user = await User.findOne({ username });
           if (user) {
-            user.wardrobe.push({
-              filename: req.file.filename,
-              category: category,
-            });
+            user.wardrobe.push({ filename: req.file.filename });
             await user.save();
             res.status(200).json({
               message: 'File uploaded successfully',
