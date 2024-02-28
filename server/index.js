@@ -34,8 +34,6 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage: storage }).single('image');
-
 mongoose
   .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/wardrobe')
   .then(() => console.log('Connected to MongoDB Atlas'))
@@ -89,10 +87,11 @@ app.get('/wardrobe/:username', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+const upload = multer({ storage: storage }).single('image');
 
-app.post('/upload/:username', upload.none(), (req, res) => {
+app.post('/upload/:username', (req, res) => {
   const { username } = req.params;
-  const category = req.body.category;
+  const category = req.body.category; // Correctly access category from req.body
   console.log(category);
   upload(req, res, async (err) => {
     if (err) {
@@ -127,7 +126,6 @@ app.post('/upload/:username', upload.none(), (req, res) => {
     }
   });
 });
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
