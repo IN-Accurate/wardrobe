@@ -39,7 +39,7 @@ function App() {
     axios
       .get(`https://wardrobe-zj0u.onrender.com/wardrobe/${username}`)
       .then((response) => {
-        // Extract category from filename locally
+        // Parse category from filename
         const wardrobeWithCategories = response.data.map((item) => {
           const filenameParts = item.filename.split('::::');
           return {
@@ -73,7 +73,7 @@ function App() {
       { type: image.type }
     );
     formData.append('image', renamedFile);
-
+    console.log(renamedFile);
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
         headers: {
@@ -145,32 +145,19 @@ function App() {
           <h2>My Wardrobe</h2>
           <p>Click one item from each row to pick it</p>
           <div className='wardrobe-container'>
-            {categoryOptions.map((category) => (
-              <div
-                key={category}
-                className='category-row'
+            {wardrobe.map((item) => (
+              <img
+                key={item.filename}
+                src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
+                alt='Wardrobe Item'
                 style={{
-                  display: category === selectedCategory ? 'flex' : 'none',
+                  width: 'auto',
+                  height: '300px',
+                  margin: '5px',
+                  cursor: 'pointer',
                 }}
-              >
-                {wardrobe.map(
-                  (item) =>
-                    item.category === category && (
-                      <img
-                        key={item.filename}
-                        src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
-                        alt='Wardrobe Item'
-                        style={{
-                          width: 'auto',
-                          height: '300px',
-                          margin: '5px',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => handleItemClick(item.filename)}
-                      />
-                    )
-                )}
-              </div>
+                onClick={() => handleItemClick(item.filename)}
+              />
             ))}
           </div>
         </div>
