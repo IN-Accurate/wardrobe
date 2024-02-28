@@ -12,11 +12,11 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState('');
 
   const categoryOptions = [
-    'tops',
-    'bottoms',
-    'headgear',
-    'footwear',
-    'accessories',
+    'Tops',
+    'Bottoms',
+    'Headgear',
+    'Footwear',
+    'Accessories',
   ];
 
   useEffect(() => {
@@ -45,14 +45,24 @@ function App() {
     setImage(event.target.files[0]);
   };
   const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value); // Ensure selectedCategory is set correctly
+    setSelectedCategory(event.target.value);
   };
+
   const handleUpload = () => {
     if (!image || !selectedCategory) {
       console.error('No file selected or category not selected');
       return;
     }
-
+    if (!categoryOptions.includes(selectedCategory)) {
+      alert(
+        `Type only ${categoryOptions
+          .map(
+            (category) => category.charAt(0).toUpperCase() + category.slice(1)
+          )
+          .join(', ')}!`
+      );
+      return;
+    }
     const reader = new FileReader();
 
     reader.onload = function (event) {

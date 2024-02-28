@@ -5,14 +5,19 @@ const fs = require('fs');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
-const app = express();
-app.use(express.json());
-
 const port = process.env.PORT || 5000;
 
-const uploadsDirectory = path.join(__dirname, 'uploads');
-
+const app = express();
+app.use(express.json());
 app.use(cors());
+app.use(express.json());
+app.use(bodyParser.json({ limit: '100mb' }));
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // Replace this with your frontend origin
+  })
+);
 app.use((req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
@@ -21,14 +26,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(
-  cors({
-    origin: 'http://localhost:3000', // Replace this with your frontend origin
-  })
-);
+const uploadsDirectory = path.join(__dirname, 'uploads');
+
 app.use('/uploads', express.static(uploadsDirectory));
-app.use(cors());
-app.use(express.json());
 
 mongoose
   .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/wardrobe')
