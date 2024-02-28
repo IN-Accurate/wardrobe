@@ -23,6 +23,11 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static(uploadsDirectory));
 app.use(cors());
 app.use(express.json()); // Parse JSON bodies
+const corsOptions = {
+  origin: 'http://localhost:3000', // Allow requests from localhost:3000
+};
+
+app.use(cors(corsOptions));
 
 // MongoDB connection
 mongoose.connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/', {
