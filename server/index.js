@@ -27,7 +27,6 @@ app.use(express.json()); // Parse JSON bodies
 // MongoDB connection
 mongoose.connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/', {
   useNewUrlParser: true,
-  useUnifiedTopology: true,
 });
 
 // Define MongoDB schema and model for users
