@@ -39,12 +39,7 @@ function App() {
     axios
       .get(`https://wardrobe-zj0u.onrender.com/wardrobe/${username}`)
       .then((response) => {
-        setWardrobe(
-          response.data.map((item) => ({
-            filename: item.filename,
-            category: item.category,
-          }))
-        );
+        setWardrobe(response.data);
         console.log(response.data);
       })
       .catch((error) => {
@@ -55,10 +50,11 @@ function App() {
   const handleImageChange = (event) => {
     setImage(event.target.files[0]);
   };
+
   const handleUpload = () => {
     const formData = new FormData();
     formData.append('image', image);
-    formData.append('category', selectedCategory); // Include the category
+    formData.append('category', selectedCategory);
 
     axios
       .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
@@ -67,7 +63,7 @@ function App() {
         },
       })
       .then((response) => {
-        fetchWardrobe(); // Refresh wardrobe after upload
+        fetchWardrobe();
       })
       .catch((error) => {
         console.error(error);
@@ -134,7 +130,9 @@ function App() {
               <div
                 key={category}
                 className='category-row'
-                style={{ animationDirection: carouselDirection }}
+                style={{
+                  display: category === selectedCategory ? 'flex' : 'none',
+                }}
               >
                 {wardrobe.map(
                   (item) =>
