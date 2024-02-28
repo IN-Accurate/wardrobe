@@ -45,6 +45,7 @@ function App() {
             category: item.category,
           }))
         );
+        console.log(response.data);
       })
       .catch((error) => {
         console.error(error);
