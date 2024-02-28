@@ -23,6 +23,11 @@ app.use((req, res, next) => {
 app.use('/uploads', express.static(uploadsDirectory));
 app.use(cors());
 app.use(express.json());
+app.use(
+  cors({
+    origin: 'http://localhost:3000', // Replace this with your frontend origin
+  })
+);
 
 mongoose
   .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/wardrobe')
