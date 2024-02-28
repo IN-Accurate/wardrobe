@@ -10,8 +10,6 @@ function App() {
   const [wardrobe, setWardrobe] = useState([]);
   const [image, setImage] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [carouselDirection, setCarouselDirection] = useState('left');
-  const [pausedCategories, setPausedCategories] = useState([]);
 
   const categoryOptions = [
     'tops',
@@ -26,15 +24,6 @@ function App() {
       fetchWardrobe();
     }
   }, [isLoggedIn]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCarouselDirection((prevDirection) =>
-        prevDirection === 'left' ? 'right' : 'left'
-      );
-    }, 5000); // Change direction every 5 seconds
-    return () => clearInterval(interval);
-  }, []);
 
   const fetchWardrobe = () => {
     axios
@@ -100,16 +89,6 @@ function App() {
     setSelectedCategory(event.target.value);
   };
 
-  const handleItemClick = (filename) => {
-    // Handle item selection
-    const category = filename.split('::::')[0];
-    setPausedCategories((prevPausedCategories) =>
-      prevPausedCategories.includes(category)
-        ? prevPausedCategories.filter((c) => c !== category)
-        : [...prevPausedCategories, category]
-    );
-  };
-
   return (
     <div>
       {!isLoggedIn ? (
@@ -147,14 +126,7 @@ function App() {
           <h2>My Wardrobe</h2>
           <p>Click an item to pause/resume its carousel</p>
           {categoryOptions.map((category) => (
-            <div
-              key={category}
-              style={{
-                animationPlayState: pausedCategories.includes(category)
-                  ? 'paused'
-                  : 'running',
-              }}
-            >
+            <div key={category}>
               <h3>{category}</h3>
               <div className='wardrobe-container'>
                 {wardrobe.map((item) =>
@@ -170,7 +142,6 @@ function App() {
                         margin: '5px',
                         cursor: 'pointer',
                       }}
-                      onClick={() => handleItemClick(item.filename)}
                     />
                   ) : null
                 )}

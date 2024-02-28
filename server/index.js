@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema({
   wardrobe: [
     {
       filename: String,
+      category: String,
     },
   ],
 });
