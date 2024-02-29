@@ -105,6 +105,9 @@ app.post('/upload/:username', multer().single('image'), async (req, res) => {
     if (user) {
       user.wardrobe.push({ filename, category });
       await user.save();
+      res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Set CORS headers
+      res.header('Access-Control-Allow-Methods', 'POST'); // Set allowed methods
+      res.header('Access-Control-Allow-Headers', 'Content-Type'); // Set allowed headers
       res.status(200).json({
         message: 'File uploaded successfully',
         filename,
