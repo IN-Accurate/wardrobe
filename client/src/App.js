@@ -14,7 +14,6 @@ function App() {
   const distance = 2;
 
   useEffect(() => {
-    // Check if user is already logged in
     const token = localStorage.getItem('token');
     if (token) {
       setLoggedIn(true);
@@ -66,6 +65,7 @@ function App() {
       console.error('Error uploading image:', error);
     }
   };
+
   const handleLogin = async () => {
     try {
       const res = await axios.post('http://localhost:5000/login', {
@@ -74,7 +74,7 @@ function App() {
       });
       if (res.status === 200) {
         localStorage.setItem('token', res.data.token);
-        localStorage.setItem('username', username); // Store the username
+        localStorage.setItem('username', username);
         setLoggedIn(true);
         fetchWardrobe();
       }
@@ -82,6 +82,7 @@ function App() {
       console.error('Error logging in:', error);
     }
   };
+
   const fetchWardrobe = async () => {
     try {
       const res = await axios.get('http://localhost:5000/wardrobe', {
@@ -89,7 +90,7 @@ function App() {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      const username = localStorage.getItem('username'); // Get the logged-in username
+      const username = localStorage.getItem('username');
       const userWardrobe = res.data.filter(
         (item) => item.username === username
       );

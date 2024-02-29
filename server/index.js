@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const jwt = require('jsonwebtoken'); // Import jsonwebtoken package
+const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
 const app = express();
@@ -44,7 +44,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Authentication middleware
 const verifyToken = (req, res, next) => {
   const token = req.headers.authorization;
 
@@ -53,7 +52,7 @@ const verifyToken = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token.split(' ')[1], 'your_secret_key'); // Extract token from "Bearer <token>"
+    const decoded = jwt.verify(token.split(' ')[1], 'your_secret_key');
     req.user = decoded.user;
     next();
   } catch (error) {
@@ -67,20 +66,17 @@ app.post('/login', async (req, res) => {
   try {
     let user = await User.findOne({ username });
     if (!user) {
-      // If user does not exist, create a new user with the provided password
       const hashedPassword = await bcrypt.hash(password, 10);
       user = new User({ username, password: hashedPassword });
       await user.save();
       return res.status(201).json({ message: 'User created successfully' });
     }
-    // If user exists, check the password
     if (await bcrypt.compare(password, user.password)) {
-      // Generate JWT token
       const token = jwt.sign(
         { user: { username: user.username } },
         'your_secret_key',
         {
-          expiresIn: '1h', // Token expires in 1 hour
+          expiresIn: '1h',
         }
       );
       return res.status(200).json({ message: 'Login successful', token });
@@ -94,9 +90,8 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/wardrobe', verifyToken, async (req, res) => {
-  // Protected route, requires token verification
   try {
-    const wardrobe = await Wardrobe.find({ username: req.user.username }); // Fetch wardrobe items for the logged-in user
+    const wardrobe = await Wardrobe.find({ username: req.user.username });
     res.status(200).json(wardrobe);
   } catch (error) {
     console.error('Error fetching wardrobe:', error);
@@ -105,12 +100,11 @@ app.get('/wardrobe', verifyToken, async (req, res) => {
 });
 
 app.post('/upload', verifyToken, upload.single('image'), async (req, res) => {
-  // Protected route, requires token verification
   try {
     const { category } = req.body;
     const imageUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
     const wardrobeItem = new Wardrobe({
-      username: req.user.username, // Store the username from the token
+      username: req.user.username,
       category,
       imageUrl,
     });
