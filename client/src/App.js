@@ -47,7 +47,6 @@ function App() {
   const handleCategoryChange = (event) => {
     setSelectedCategory(event.target.value);
   };
-
   const handleUpload = () => {
     if (!image || !selectedCategory) {
       console.error('No file selected or category not selected');
@@ -63,26 +62,24 @@ function App() {
       );
       return;
     }
-    const reader = new FileReader();
 
-    reader.onload = function (event) {
-      const imageData = event.target.result;
+    const formData = new FormData();
+    formData.append('image', image);
+    formData.append('category', selectedCategory);
 
-      axios
-        .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, {
-          image: imageData,
-          category: selectedCategory,
-        })
-        .then((response) => {
-          fetchWardrobe(); // Refetch wardrobe to update with the new item
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    };
-
-    reader.readAsDataURL(image);
+    axios
+      .post(`https://wardrobe-zj0u.onrender.com/upload/${username}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then((response) => {
+        fetchWardrobe(); // Refetch wardrobe to update with the new item
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   };
 
   const handleLogin = () => {
@@ -130,29 +127,22 @@ function App() {
           <button onClick={handleUpload}>Upload</button>
           <h2>My Wardrobe</h2>
           <p>Click an item to pause/resume its carousel</p>
-          {categoryOptions.map((category) => (
-            <div key={category}>
-              <h3>{category}</h3>
-              <div className='wardrobe-container'>
-                {wardrobe.map((item) =>
-                  item.category === category ? (
-                    <img
-                      key={item.filename}
-                      src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
-                      alt='Wardrobe Item'
-                      className='wardrobe-item'
-                      style={{
-                        width: 'auto',
-                        height: '300px',
-                        margin: '5px',
-                        cursor: 'pointer',
-                      }}
-                    />
-                  ) : null
-                )}
-              </div>
-            </div>
-          ))}
+          <div className='wardrobe-container'>
+            {wardrobe.map((item) => (
+              <img
+                key={item.filename}
+                src={`https://wardrobe-zj0u.onrender.com/uploads/${item.filename}`}
+                alt='Wardrobe Item'
+                className='wardrobe-item'
+                style={{
+                  width: 'auto',
+                  height: '300px',
+                  margin: '5px',
+                  cursor: 'pointer',
+                }}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
