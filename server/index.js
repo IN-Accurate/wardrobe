@@ -1,42 +1,14 @@
 const express = require('express');
 const multer = require('multer');
-const path = require('path');
-const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 const fs = require('fs');
+const path = require('path');
 const cors = require('cors');
+const jwt = require('jsonwebtoken'); // Import jsonwebtoken package
 const mongoose = require('mongoose');
 
-const port = process.env.PORT || 5000;
-
 const app = express();
-app.use(express.json());
-app.use(cors());
-app.use(express.json());
-app.use(bodyParser.json({ limit: '100MB' }));
-app.use(bodyParser.urlencoded({ limit: '100MB', extended: true }));
-const corsOptions = {
-  origin: 'http://localhost:3000', // Allow requests from your frontend origin
-};
-
-app.use(cors(corsOptions));
-app.use((req, res, next) => {
-  // Set CORS headers to allow requests from http://localhost:3000
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-  // Set Content-Security-Policy header
-  res.setHeader(
-    'Content-Security-Policy',
-    "default-src data: https://www.google-analytics.com; font-src 'self' https://wardrobe-zj0u.onrender.com;"
-  );
-
-  next();
-});
-
-const uploadsDirectory = path.join(__dirname, 'uploads');
-
-app.use('/uploads', express.static(uploadsDirectory));
+const PORT = 5000;
 
 mongoose
   .connect('mongodb+srv://admin:admin@cluster0.jirdz5d.mongodb.net/wardrobe')
@@ -46,87 +18,110 @@ mongoose
 const userSchema = new mongoose.Schema({
   username: String,
   password: String,
-  wardrobe: [
-    {
-      filename: String,
-      category: String,
-    },
-  ],
+});
+
+const wardrobeSchema = new mongoose.Schema({
+  username: String,
+  category: String,
+  imageUrl: String,
 });
 
 const User = mongoose.model('User', userSchema);
+const Wardrobe = mongoose.model('Wardrobe', wardrobeSchema);
+
+app.use(express.json());
+app.use(cors());
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage });
+
+// Authentication middleware
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Authorization token is missing' });
+  }
+
+  try {
+    const decoded = jwt.verify(token.split(' ')[1], 'your_secret_key'); // Extract token from "Bearer <token>"
+    req.user = decoded.user;
+    next();
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return res.status(403).json({ message: 'Invalid token' });
+  }
+};
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
   try {
-    const user = await User.findOne({ username });
-    if (user) {
-      if (user.password === password) {
-        res.status(200).send('Login successful');
-      } else {
-        res.status(401).send('Incorrect password');
-      }
+    let user = await User.findOne({ username });
+    if (!user) {
+      // If user does not exist, create a new user with the provided password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user = new User({ username, password: hashedPassword });
+      await user.save();
+      return res.status(201).json({ message: 'User created successfully' });
+    }
+    // If user exists, check the password
+    if (await bcrypt.compare(password, user.password)) {
+      // Generate JWT token
+      const token = jwt.sign(
+        { user: { username: user.username } },
+        'your_secret_key',
+        {
+          expiresIn: '1h', // Token expires in 1 hour
+        }
+      );
+      return res.status(200).json({ message: 'Login successful', token });
     } else {
-      const newUser = new User({ username, password, wardrobe: [] });
-      await newUser.save();
-      res.status(201).send('User created');
+      return res.status(401).json({ message: 'Incorrect password' });
     }
   } catch (error) {
     console.error('Error during login:', error);
-    res.status(500).send('Internal Server Error');
+    return res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-app.get('/wardrobe/:username', async (req, res) => {
-  const { username } = req.params;
+app.get('/wardrobe', verifyToken, async (req, res) => {
+  // Protected route, requires token verification
   try {
-    const user = await User.findOne({ username });
-    if (user) {
-      res.status(200).json(user.wardrobe);
-    } else {
-      res.status(404).send('User not found');
-    }
+    const wardrobe = await Wardrobe.find({ username: req.user.username }); // Fetch wardrobe items for the logged-in user
+    res.status(200).json(wardrobe);
   } catch (error) {
     console.error('Error fetching wardrobe:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
-app.post('/upload/:username', multer().single('image'), async (req, res) => {
-  const { username } = req.params;
-  const { category } = req.body;
-  const image = req.file; // multer stores the uploaded file in req.file
 
-  if (!image || !category) {
-    return res.status(400).json({ error: 'Image or category not provided' });
-  }
-
-  // Generate unique filename
-  const filename = `image-${Date.now()}.png`;
-
-  // Move the uploaded file to the uploads directory
-  fs.renameSync(image.path, path.join(uploadsDirectory, filename));
-
+app.post('/upload', verifyToken, upload.single('image'), async (req, res) => {
+  // Protected route, requires token verification
   try {
-    const user = await User.findOne({ username });
-    if (user) {
-      user.wardrobe.push({ filename, category });
-      await user.save();
-      res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Set CORS headers
-      res.header('Access-Control-Allow-Methods', 'POST'); // Set allowed methods
-      res.header('Access-Control-Allow-Headers', 'Content-Type'); // Set allowed headers
-      res.status(200).json({
-        message: 'File uploaded successfully',
-        filename,
-      });
-    } else {
-      res.status(404).send('User not found');
-    }
+    const { category } = req.body;
+    const imageUrl = `http://localhost:${PORT}/uploads/${req.file.filename}`;
+    const wardrobeItem = new Wardrobe({
+      username: req.user.username, // Store the username from the token
+      category,
+      imageUrl,
+    });
+    await wardrobeItem.save();
+    res.status(201).json({ message: 'Image uploaded successfully' });
   } catch (error) {
-    console.error('Error uploading file:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error uploading image:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
