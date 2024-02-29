@@ -19,12 +19,18 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use((req, res, next) => {
+  // Set CORS headers to allow requests from http://localhost:3000
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Set Content-Security-Policy header
   res.setHeader(
     'Content-Security-Policy',
     "default-src data: https://www.google-analytics.com; font-src 'self' https://wardrobe-zj0u.onrender.com;"
   );
+
   next();
 });
 
